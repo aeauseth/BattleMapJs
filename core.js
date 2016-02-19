@@ -1,6 +1,6 @@
 "use strict";
 
-const gridSizeInPixels = 50;
+var gridSizeInPixels = 50;
 const gridSizeInFeet = 5;
 const circumferenceOfEarth = 40075016;
 const gridWidthMax = Math.floor(circumferenceOfEarth / gridSizeInFeet * gridSizeInPixels);
@@ -9,7 +9,7 @@ var tilingSprite = {};
 var selectedShape;
 var settings = { displayMode: "WebGL" };
 var selectedLayer;
-var mouseLocalPosition = {x: 0, y: 0};
+var mouseLocalPosition = { x: 0, y: 0 };
 
 // Manuall set displayMode
 //settings.displayMode = "WebGL";
@@ -53,7 +53,7 @@ $(document).ready(function () {
     //setupLayers();
 
     //setupGrid();
-    
+
     reset();
 
     //if (settings.displayMode == "WebGL") {
@@ -63,18 +63,17 @@ $(document).ready(function () {
     //    setupCanvasEvents();
     //}
 
-    if (settings.displayMode == "svg") {
-        setupSvgEvents();
-    }
+    //if (settings.displayMode == "svg") {
+    //    setupSvgEvents();
+    //}
 
     //Generic Events
     //window.addEventListener("resize", resize);
     //window.addEventListener("keydown", keydown);
 
     // Finilize & Start animation
-    
 
-    selectLayer("background");
+
     //resize();
     loadSampleMap();
     //setTimeout(loadSampleMap, 1000);
@@ -321,7 +320,7 @@ function mouseButtonAbstract(e) {
 
 //    //mouseLocalPosition.x = event.offsetX / viewBox.zoom + viewBox.x;
 //    //mouseLocalPosition.y = event.offsetY / viewBox.zoom + viewBox.y;
-   
+
 //}
 
 function updateLocalMouse() {
@@ -651,7 +650,7 @@ function resize() {
     //}
     //updateSvgTransform();
 
-    svgCanvas.setAttribute("viewBox", viewBox.x + " " + viewBox.y + " " + viewBox.width + " " + viewBox.height );
+    svgCanvas.setAttribute("viewBox", viewBox.x + " " + viewBox.y + " " + viewBox.width + " " + viewBox.height);
     layers["grid"].children[0].setAttribute("x", viewBox.x);
     layers["grid"].children[0].setAttribute("y", viewBox.y);
     clickthruLayer.children[0].setAttribute("x", viewBox.x);
@@ -768,7 +767,7 @@ function setupGrid() {
         pattern.setAttribute("patternUnits", "userSpaceOnUse");
         var polyline = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
 
-        polyline.setAttribute("points", "0, 50 0,0 50,0");
+        polyline.setAttribute("points", "0, " + gridSizeInPixels + " 0,0 " + gridSizeInPixels + ",0");
         polyline.setAttribute("fill", "none");
         polyline.setAttribute("stroke", "black");
         polyline.setAttribute("stroke-width", 1);
@@ -799,25 +798,46 @@ function setupGrid() {
 
     }
 
-    if (settings.displayMode == "Canvas") {
-        // Draw rectangle/grid to a buffer canvas
-        var bufferCanvas = document.createElement("canvas");
-        var bufferCanvasCtx = bufferCanvas.getContext("2d");
-        bufferCanvasCtx.canvas.width = gridSizeInPixels;
-        bufferCanvasCtx.canvas.height = gridSizeInPixels;
-        bufferCanvasCtx.beginPath();
-        bufferCanvasCtx.lineWidth = 1;
-        bufferCanvasCtx.strokeStyle = "black";
-        bufferCanvasCtx.rect(0.5, 0.5, gridSizeInPixels, gridSizeInPixels);
-        bufferCanvasCtx.stroke();
+    //if (settings.displayMode == "Canvas") {
+    //    // Draw rectangle/grid to a buffer canvas
+    //    var bufferCanvas = document.createElement("canvas");
+    //    var bufferCanvasCtx = bufferCanvas.getContext("2d");
+    //    bufferCanvasCtx.canvas.width = gridSizeInPixels;
+    //    bufferCanvasCtx.canvas.height = gridSizeInPixels;
+    //    bufferCanvasCtx.beginPath();
+    //    bufferCanvasCtx.lineWidth = 1;
+    //    bufferCanvasCtx.strokeStyle = "black";
+    //    bufferCanvasCtx.rect(0.5, 0.5, gridSizeInPixels, gridSizeInPixels);
+    //    bufferCanvasCtx.stroke();
 
-        // Convert to Image
-        var img = new Image();
-        img.src = bufferCanvas.toDataURL("image/png");
+    //    // Convert to Image
+    //    var img = new Image();
+    //    img.src = bufferCanvas.toDataURL("image/png");
 
-        // Convert to Pattern
-        layers["gridLayer"].gridPattern = layers["gridLayer"].ctx.createPattern(img, "repeat");
-    }
+    //    // Convert to Pattern
+    //    layers["gridLayer"].gridPattern = layers["gridLayer"].ctx.createPattern(img, "repeat");
+    //}
+}
+
+function resetGrid(newGridSize) {
+    gridSizeInPixels = newGridSize;
+    //var pattern = document.createElementNS("http://www.w3.org/2000/svg", "pattern");
+    //pattern.setAttribute("id", "basicPattern");
+    //pattern.setAttribute("x", 0);
+    //pattern.setAttribute("y", 0);
+    basicPattern.setAttribute("height", gridSizeInPixels);
+    basicPattern.setAttribute("width", gridSizeInPixels);
+    //pattern.setAttribute("patternUnits", "userSpaceOnUse");
+
+    var polyline = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+
+    polyline.setAttribute("points", "0, " + gridSizeInPixels + " 0,0 " + gridSizeInPixels + ",0");
+    polyline.setAttribute("fill", "none");
+    polyline.setAttribute("stroke", "black");
+    polyline.setAttribute("stroke-width", 1);
+    //polyline.setAttribute("vector-effect", "non-scaling-stroke");
+
+    basicPattern.children[0] = polyline;
 }
 
 
@@ -910,6 +930,33 @@ function reset() {
     //    updateSvgTransform();
     //}
 
+
+
+    // Remove All Svg Elements
+    if (window.svgCanvas) {
+        while (svgCanvas.firstChild) {
+            svgCanvas.removeChild(svgCanvas.firstChild);
+        }
+    }
+    //    for (var i = 0; i < layers_keys_length_cache; i++) {
+    //        var layer = layers[layers_keys_cache[i]];
+    //        if (layer.nodeName) {
+    //            if (layer.nodeName == "g") {
+    //                //if (layer.id != "gridLayer") {
+    //                    while (layer.firstChild) {
+    //                        layer.removeChild(layer.firstChild);
+    //                    }
+    //                //}
+    //            }
+    //        }
+    //    }
+    //}
+    while (canvasDiv.firstChild) {
+        canvasDiv.removeChild(canvasDiv.firstChild);
+    }
+
+    shapes = {};
+
     setupLayers();
     setupGrid();
 
@@ -918,24 +965,11 @@ function reset() {
     viewBox.z = 1;
     viewBox.width = window.innerWidth;
     viewBox.height = window.innerHeight;
-    resize();
 
-    if (settings.displayMode == "svg") {
-        for (var i = 0; i < layers_keys_length_cache; i++) {
-            var layer = layers[layers_keys_cache[i]];
-            if (layer.nodeName) {
-                if (layer.nodeName == "g") {
-                    if (layer.id != "gridLayer") {
-                        while (layer.firstChild) {
-                            layer.removeChild(layer.firstChild);
-                        }
-                    }
-                }
-            }
-        }
-    }
 
-    shapes = {};
+    setupSvgEvents();
+    selectLayer("background");
+
     resize();
 
 
@@ -1042,14 +1076,17 @@ function createMaze() {
     //save();
 }
 
-function textureHandler(textureName) {
+function textureHandler(textureName, options) {
     if (textures[textureName] == undefined) {
-        if (settings.displayMode == "webGL") {
-            textures[textureName] = PIXI.Texture.fromImage(textureName);
+
+        if (!options) {
+            options = {
+                texture: true
+            };
         }
 
-        if (settings.displayMode == "svg") {
-            textures[textureName] = "url(#" + textureName + ")";
+        textures[textureName] = "url(#" + textureName + ")";
+        if (options.texture && !options.binaryData) {
             getDataUri(textureName, function (e) {
                 var defs = document.getElementsByTagName("defs")[0];
                 var pattern = document.createElementNS("http://www.w3.org/2000/svg", "pattern");
@@ -1070,10 +1107,56 @@ function textureHandler(textureName) {
 
             });
         }
+
+        if (options.texture && options.binaryData) {
+            getDataUri(options.binaryData, function (e) {
+                var defs = document.getElementsByTagName("defs")[0];
+                var pattern = document.createElementNS("http://www.w3.org/2000/svg", "pattern");
+                pattern.setAttribute("id", textureName);
+                pattern.setAttribute("x", 0);
+                pattern.setAttribute("y", 0);
+                pattern.setAttribute("width", e.width);
+                pattern.setAttribute("height", e.height);
+                pattern.setAttribute("patternUnits", "objectBoundingBox");
+                var image = document.createElementNS("http://www.w3.org/2000/svg", "image");
+                image.setAttributeNS("http://www.w3.org/1999/xlink", "href", e.dataUri);
+                image.setAttribute("x", 0);
+                image.setAttribute("y", 0);
+                image.setAttribute("width", e.width);
+                image.setAttribute("height", e.height);
+                pattern.appendChild(image)
+                defs.appendChild(pattern);
+
+            });
+        }
+
+
+        if (!options.texture && options.binaryData) {
+            getDataUri(options.binaryData, function (e) {
+                var defs = document.getElementsByTagName("defs")[0];
+                var pattern = document.createElementNS("http://www.w3.org/2000/svg", "pattern");
+                pattern.setAttribute("id", textureName);
+                pattern.setAttribute("x", 0);
+                pattern.setAttribute("y", 0);
+                pattern.setAttribute("width", e.width);
+                pattern.setAttribute("height", e.height);
+                pattern.setAttribute("patternUnits", "objectBoundingBox");
+                var image = document.createElementNS("http://www.w3.org/2000/svg", "image");
+                image.setAttributeNS("http://www.w3.org/1999/xlink", "href", e.dataUri);
+                image.setAttribute("x", 0);
+                image.setAttribute("y", 0);
+                image.setAttribute("width", e.width);
+                image.setAttribute("height", e.height);
+                pattern.appendChild(image)
+                defs.appendChild(pattern);
+
+            });
+        }
     }
     return textures[textureName];
 
 }
+
 
 function getDataUri(url, callback) {
     //REF: https://davidwalsh.name/convert-image-data-uri-javascript
@@ -1114,7 +1197,8 @@ function loadWizard() {
         width: 50,
         height: 50,
         fillStyle: "wizard7.png", //extureHandler("wizard7.png"),
-        layer: "token"
+        layer: "token",
+        pattern: false
     });
     selectLayer("token");
     wizard.select();

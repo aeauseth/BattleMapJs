@@ -360,8 +360,12 @@
             <li>
                 <a onclick="createMaze()">CreateMaze</a>
             </li>
+            <li>
+                <a onclick="importRpMap()">ImportRpMap</a>
+            </li>
         </ul>
     </nav>
+    <input type="file" id="InputFile" accept=".rpmap" style="visibility:hidden">
     <nav id="nav2">
         <img id="pointerBlue" src="assets/pointer-blue-off.png" title="Interaction Tool" onclick="setMode('Interaction')" />
         <img id="drawBlue" src="assets/draw-blue-off.png" title="Drawing Tools" onclick="setMode('DrawTools')" />
@@ -444,18 +448,12 @@
     <script src="/frameworks/clipper/clipper.js"></script>
     <script src="/frameworks/gl-matrix/gl-matrix-min.js"></script>
     <!--<script src="/frameworks/pixi/pixi309.js"></script>-->
+    <script src="/frameworks/Stuk-jszip/jszip.min.js"></script>
     <script src="md5.js"></script>
     <script src="core.js"></script>
     <script src="geometry_adorner.js"></script>
     <script src="geometry.js"></script>
     <script src="raycasting.js"></script>
-    <!--<script src="geometry_handle.js"></script>
-    <script src="geometry_adorner.js"></script>
-    <script src="geometry_circle.js"></script>
-    <script src="geometry_polyline.js"></script>
-    <script src="draw_rectangle.js"></script>
-    <script src="geometry_image.js"></script>
-    <script src="geometry_polygon.js"></script>
-    <script src="raycasting.js"></script>-->
+    <script src="rpMapTools.js"></script>
 </body>
 </html>

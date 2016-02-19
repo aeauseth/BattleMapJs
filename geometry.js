@@ -9,6 +9,7 @@ var rectangle = function (props) {
     this.src = undefined;
     this.fillStyle = "green";
     this.layer = "background";
+    this.pattern = true;
 
     // Load Properties (if provided)
     if (props != undefined) {
@@ -126,7 +127,8 @@ var rectangle = function (props) {
     if (settings.displayMode == "svg") {
         shapes[_self.id] = _self;
 
-        if (this.layer.id == "tokenLayer") {
+        if (!this.pattern) {
+            //console.log(this.fillStyle);
             this.geometry = document.createElementNS("http://www.w3.org/2000/svg", "image");
             this.geometry.setAttributeNS("http://www.w3.org/1999/xlink", "href", this.fillStyle);
         } else {
