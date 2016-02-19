@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>BattleMapJs</title>
+    <style>
+        body {
+            position: absolute;
+            overflow: hidden;
+            padding: 0;
+            left: 0;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            margin-bottom: 0;
+            margin-top: 0;
+            margin-left: 0;
+            margin-right: 0;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        svg {
+            background-color: transparent;
+            //width: 100%;
+            //height: 100%;
+            //position: absolute;
+            border: none;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            //pointer-events: auto;
+        }
+
+        canvas {
+            //background-color: lightsteelblue;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            border: none;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            //left: 0;
+            //top: 0;
+        }
+
+        /*.backgroundRepeat {
+            background-repeat: repeat;
+        }*/
+
+        path {
+            stroke: black;
+            stroke-width: 1;
+        }
+
+        #div1 {
+            position: absolute;
+            right: 0px;
+            top: 0px;
+        }
+
+        .animation {
+            stroke-dashoffset: 1;
+            animation: dash 5s infinite linear;
+        }
+
+        @keyframes dash {
+            to {
+                stroke-dashoffset: 50;
+            }
+        }
+
+        .selected {
+            cursor: move;
+        }
+
+        .handle {
+            cursor: pointer;
+        }
+
+        .selectedButton {
+            background-color: steelblue;
+        }
+
+        #nav1 {
+            background-color: #d0d0d0;
+            overflow: hidden;
+            width: 100%;
+            border: 1px solid;
+            padding: 2px 1px 2px 1px;
+            border-color: #f0f0f0 #909090 #909090 #f0f0f0;
+        }
+
+            #nav1 > ul {
+                margin: 0;
+                padding: 0;
+            }
+
+                #nav1 > ul > li {
+                    display: inline-block;
+                    list-style-type: none;
+                }
+
+                    #nav1 > ul > li > a {
+                        background-color: transparent;
+                        border: 1px solid #d0d0d0;
+                        color: #000000;
+                        cursor: default;
+                        left: 0px;
+                        margin: 1px;
+                        padding: 2px 6px 2px 6px;
+                        position: relative;
+                        text-decoration: none;
+                        top: 0px;
+                        z-index: 100;
+                    }
+
+                        #nav1 > ul > li > a:hover {
+                            background-color: transparent;
+                            border-color: #f0f0f0 #909090 #909090 #f0f0f0;
+                            text-decoration: none;
+                        }
+
+                        #nav1 > ul > li > a.menuButtonActive, nav > ul > li > a.menuButtonActive:hover {
+                            background-color: #a0a0a0;
+                            border-color: #909090 #f0f0f0 #f0f0f0 #909090;
+                            color: #ffffff;
+                            left: 1px;
+                            top: 1px;
+                        }
+
+        div.menu {
+            background-color: #d0d0d0;
+            border: 2px solid;
+            border-color: #f0f0f0 #909090 #909090 #f0f0f0;
+            left: 0px;
+            padding: 0px 1px 1px 0px;
+            position: absolute;
+            top: 0px;
+            visibility: hidden;
+            z-index: 101;
+        }
+
+        a.menuItem {
+            color: #000000;
+            cursor: default;
+            display: block;
+            padding: 3px 1em;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+            a.menuItem:hover, div.menu a.menuItemHighlight {
+                background-color: #000080;
+                color: #ffffff;
+            }
+
+        div.menuItemSep {
+            border-top: 1px solid #909090;
+            border-bottom: 1px solid #f0f0f0;
+            margin: 4px 2px;
+        }
+
+        #nav2 {
+            background-color: #d0d0d0;
+            overflow: hidden;
+            width: 100%;
+            height: 31px;
+            border: 0px;
+            padding: 2px;
+            border-color: #f0f0f0 #909090 #909090 #f0f0f0;
+        }
+
+            #nav2 > img, #nav2 > div > img {
+                border: 1px solid transparent;
+                padding: 2px;
+                vertical-align: bottom;
+            }
+
+                #nav2 > img:hover, #nav2 > div > img:hover {
+                    border: 1px solid grey;
+                    //border-color: #f0f0f0 #909090 #909090 #f0f0f0;
+                }
+
+            #nav2 > span {
+                border-left: 1px solid grey;
+                padding: 2px;
+                //width: 30px;
+            }
+
+            #nav2 > .spacer {
+                border-left: 1px solid grey;
+                padding: 2px;
+                //width: 30px;
+            }
+
+            #nav2 > div {
+                display: inline-block;
+            }
+
+        #nav3ParentContainer {
+            width: auto;
+            position: relative;
+        }
+
+        #nav3 {
+            background-color: #d0d0d0;
+            overflow: hidden;
+            width: 80px;
+            height: auto;
+            border: 0px;
+            padding: 2px;
+            border-color: #f0f0f0 #909090 #909090 #f0f0f0;
+            position: absolute;
+            z-index: 10;
+            border: outset;
+            top: 10px;
+            right: 10px;
+        }
+
+            #nav3 > .fillPicker {
+                text-align: center;
+            }
+
+            #nav3 > div > .fillPickerBig {
+                width: 25px;
+                height: 25px;
+                display: inline-block;
+                border: 2px inset;
+            }
+
+                #nav3 > div > .fillPickerBig:hover {
+                    width: 25px;
+                    height: 25px;
+                    border: 2px solid;
+                    cursor: pointer;
+                }
+
+            #nav3 > div > .fillPickerSmall {
+                width: 10px;
+                height: 10px;
+                display: inline-block;
+                border: 1px inset;
+            }
+
+                #nav3 > div > .fillPickerSmall:hover {
+                    width: 10px;
+                    height: 10px;
+                    display: inline-block;
+                    border: 1px solid;
+                    cursor: pointer;
+                }
+
+            #nav3 > div > span {
+                padding: 0;
+                margin: 0;
+                font-size: small;
+            }
+
+            #nav3 > div > ul {
+                background-color: white;
+                padding: 2px;
+                margin: 0;
+                font-size: small;
+                border: 1px inset;
+            }
+
+                #nav3 > div > ul > li:hover {
+                    background-color: blue;
+                    cursor: pointer;
+                }
+
+        .blocker {
+            stroke: yellow;
+            stroke-width: 4;
+            pointer-events: none;
+            stroke-linecap: round;
+        }
+
+        .rayCast {
+            stroke: red;
+            stroke-opacity: 0.4;
+            pointer-events: none;
+        }
+
+        .rayFill {
+            stroke: none;
+            fill: yellow;
+            fill-opacity: 0.4;
+            pointer-events: none;
+        }
+
+        .svgPath {
+            fill: none;
+            //fill-opacity: 0.5;
+            stroke: blue;
+            stroke-width: 4;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            pointer-events: none;
+        }
+
+        .context-menu {
+            display: none;
+            position: absolute;
+            z-index: 10;
+            background-color: white;
+            border: 1px solid black;
+        }
+
+        .context-menu-active {
+            display: block;
+        }
+
+        .context-menu > ul {
+            margin: 5px;
+            padding: 0;
+            list-style-type: none;
+        }
+
+            .context-menu > ul > li > a {
+                color: black;
+                text-decoration: none;
+            }
+
+                .context-menu > ul > li > a:hover {
+                    background-color: steelblue;
+                }
+
+        #statusDiv {
+            height: 20px;
+            position: fixed;
+            left: 0;
+            bottom: 0%;
+            width: 100%;
+            background-color: #d0d0d0;
+        }
+    </style>
+    <script src="../../frameworks/jquery/jquery-2.1.1.min.js"></script>
+
+</head>
+<body>
+
+    <!-- Navigation bar based off of http://www.brainjar.com/dhtml/menubar/ -->
+    <nav id="nav1">
+        <ul>
+            <li>
+                <a>File</a>
+            </li>
+            <li>
+                <a onclick="reset()">Reset</a>
+            </li>
+            <li>
+                <a onclick="loadWizard()">AddWizard</a>
+            </li>
+            <li>
+                <a onclick="createMaze()">CreateMaze</a>
+            </li>
+        </ul>
+    </nav>
+    <nav id="nav2">
+        <img id="pointerBlue" src="assets/pointer-blue-off.png" title="Interaction Tool" onclick="setMode('Interaction')" />
+        <img id="drawBlue" src="assets/draw-blue-off.png" title="Drawing Tools" onclick="setMode('DrawTools')" />
+        <img src="assets/spacer1.png" class="spacer" />
+        <div id="drawingToolsDiv">
+            <img id="drawRectangle" src="assets/draw-blue-box.png" title="Draw a rectangle" onclick="setMode('DrawRectangle')" />
+        </div>
+    </nav>
+
+    <nav id="nav3ParentContainer">
+        <nav id="nav3">
+            <div id="nav3Fill1" class="fillPicker">
+                <div style="background-color: black" class="fillPickerBig">
+                </div>
+                <div style="background-color: white" class="fillPickerBig">
+                </div>
+            </div>
+            <div id="nav3Fill2" class="fillPicker">
+                <div style="background-color: black" class="fillPickerSmall">
+                </div>
+                <div style="background-color: white" class="fillPickerSmall">
+                </div>
+                <div style="background-color: green" class="fillPickerSmall">
+                </div>
+                <div style="background-color: purple" class="fillPickerSmall">
+                </div>
+            </div>
+            <div id="nav3Layer">
+                <span>Layer:</span>
+                <ul>
+                    <li id="tokenLayerListItem" onclick="selectLayer('token')">Token</li>
+                    <li id="backgroundLayerListItem" onclick="selectLayer('background')">Background</li>
+                </ul>
+            </div>
+        </nav>
+    </nav>
+
+    <div id="canvasDiv">
+
+    </div>
+
+
+    <nav id="context-menu" class="context-menu">
+        <ul class="context-menu__items">
+            <li id="changeTo" class=" context-menu__item">
+                <a href="#" class="context-menu__link">
+                    Change To <span style="text-align: right">&#x25BA</span>
+                </a>
+            </li>
+            <li class="context-menu__item">
+                <a href="#" class="context-menu__link">
+                    <i class="fa fa-edit"></i> Future Task
+                </a>
+            </li>
+            <li class="context-menu__item">
+                <a href="#" class="context-menu__link">
+                    <i class="fa fa-times"></i> Future Future Future Task
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <nav id="context-menu-changeTo" class="context-menu">
+        <ul class="context-menu__items">
+            <li id="changeToTokenLayer" class="context-menu__item">
+                <a href="#" class="context-menu__link">
+                    Token
+                </a>
+            </li>
+            <li id="changeToBackgroundLayer" class="context-menu__item">
+                <a href="#" class="context-menu__link">
+                    Background
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <div id="statusDiv"><span id="statusSpan"></span></div>
+
+    <script src="/frameworks/clipper/clipper.js"></script>
+    <script src="/frameworks/gl-matrix/gl-matrix-min.js"></script>
+    <!--<script src="/frameworks/pixi/pixi309.js"></script>-->
+    <script src="md5.js"></script>
+    <script src="core.js"></script>
+    <script src="geometry_adorner.js"></script>
+    <script src="geometry.js"></script>
+    <script src="raycasting.js"></script>
+    <!--<script src="geometry_handle.js"></script>
+    <script src="geometry_adorner.js"></script>
+    <script src="geometry_circle.js"></script>
+    <script src="geometry_polyline.js"></script>
+    <script src="draw_rectangle.js"></script>
+    <script src="geometry_image.js"></script>
+    <script src="geometry_polygon.js"></script>
+    <script src="raycasting.js"></script>-->
+</body>
+</html>
