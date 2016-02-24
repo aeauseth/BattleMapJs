@@ -148,6 +148,9 @@ function setupSvgEvents() {
 
         e.preventDefault();
     }, false);
+
+    // resize
+    window.addEventListener("resize", resize);
 }
 
 function zoom(z, event) {
@@ -571,6 +574,7 @@ function setupLayers() {
         svg.setAttribute("id", "svgCanvas");
         svg.style.backgroundColor = "lightsteelblue";
         svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+
         canvasDiv.appendChild(svg);
 
         var clickthruLayer = document.createElementNS("http://www.w3.org/2000/svg", "g");
@@ -615,8 +619,10 @@ function setupLayers() {
 function resize() {
     //viewBox.width = svgCanvas.clientWidth / viewBox.z;
     //viewBox.height = svgCanvas.clientHeight / viewBox.z;  //window.innerHeight - nav1.clientHeight - nav2.clientHeight - statusDiv.clientHeight - 1;
-    //svgCanvas.setAttribute("width", 800);
-    //svgCanvas.setAttribute("height", 600);
+    svgCanvas.setAttribute("width", window.innerWidth);
+    svgCanvas.setAttribute("height", window.innerHeight - nav1.clientHeight - nav2.clientHeight - statusDiv.clientHeight - 1);
+    viewBox.width = svgCanvas.clientWidth / viewBox.z;
+    viewBox.height = svgCanvas.clientHeight / viewBox.z;
 
 
     //if (settings.displayMode == "WebGL") {
@@ -819,7 +825,7 @@ function setupGrid() {
     //}
 }
 
-function resetGrid(newGridSize) {
+function resizeGrid(newGridSize) {
     gridSizeInPixels = newGridSize;
     //var pattern = document.createElementNS("http://www.w3.org/2000/svg", "pattern");
     //pattern.setAttribute("id", "basicPattern");
@@ -956,6 +962,8 @@ function reset() {
     }
 
     shapes = {};
+    textures = {};
+    gridSizeInPixels = 50;
 
     setupLayers();
     setupGrid();
@@ -1085,8 +1093,10 @@ function textureHandler(textureName, options) {
             };
         }
 
-        textures[textureName] = "url(#" + textureName + ")";
-        if (options.texture && !options.binaryData) {
+        textures[textureName] = {};
+        textures[textureName].pattern = "url(#" + textureName + ")";
+        textures[textureName].image = "";
+        if (options.texture && !options.binary64) {
             getDataUri(textureName, function (e) {
                 var defs = document.getElementsByTagName("defs")[0];
                 var pattern = document.createElementNS("http://www.w3.org/2000/svg", "pattern");
@@ -1104,53 +1114,59 @@ function textureHandler(textureName, options) {
                 image.setAttribute("height", e.height);
                 pattern.appendChild(image)
                 defs.appendChild(pattern);
+                textures[textureName].image = e.dataUri;
 
             });
         }
 
-        if (options.texture && options.binaryData) {
-            getDataUri(options.binaryData, function (e) {
-                var defs = document.getElementsByTagName("defs")[0];
-                var pattern = document.createElementNS("http://www.w3.org/2000/svg", "pattern");
-                pattern.setAttribute("id", textureName);
-                pattern.setAttribute("x", 0);
-                pattern.setAttribute("y", 0);
-                pattern.setAttribute("width", e.width);
-                pattern.setAttribute("height", e.height);
-                pattern.setAttribute("patternUnits", "objectBoundingBox");
-                var image = document.createElementNS("http://www.w3.org/2000/svg", "image");
-                image.setAttributeNS("http://www.w3.org/1999/xlink", "href", e.dataUri);
-                image.setAttribute("x", 0);
-                image.setAttribute("y", 0);
-                image.setAttribute("width", e.width);
-                image.setAttribute("height", e.height);
-                pattern.appendChild(image)
-                defs.appendChild(pattern);
+        //if (options.texture && options.binaryData) {
+        //    getDataUri(options.binaryData, function (e) {
+        //        var defs = document.getElementsByTagName("defs")[0];
+        //        var pattern = document.createElementNS("http://www.w3.org/2000/svg", "pattern");
+        //        pattern.setAttribute("id", textureName);
+        //        pattern.setAttribute("x", 0);
+        //        pattern.setAttribute("y", 0);
+        //        pattern.setAttribute("width", e.width);
+        //        pattern.setAttribute("height", e.height);
+        //        pattern.setAttribute("patternUnits", "objectBoundingBox");
+        //        var image = document.createElementNS("http://www.w3.org/2000/svg", "image");
+        //        image.setAttributeNS("http://www.w3.org/1999/xlink", "href", e.dataUri);
+        //        image.setAttribute("x", 0);
+        //        image.setAttribute("y", 0);
+        //        image.setAttribute("width", e.width);
+        //        image.setAttribute("height", e.height);
+        //        pattern.appendChild(image)
+        //        defs.appendChild(pattern);
 
-            });
-        }
+        //    });
+        //}
 
 
-        if (!options.texture && options.binaryData) {
-            getDataUri(options.binaryData, function (e) {
-                var defs = document.getElementsByTagName("defs")[0];
-                var pattern = document.createElementNS("http://www.w3.org/2000/svg", "pattern");
-                pattern.setAttribute("id", textureName);
-                pattern.setAttribute("x", 0);
-                pattern.setAttribute("y", 0);
-                pattern.setAttribute("width", e.width);
-                pattern.setAttribute("height", e.height);
-                pattern.setAttribute("patternUnits", "objectBoundingBox");
-                var image = document.createElementNS("http://www.w3.org/2000/svg", "image");
-                image.setAttributeNS("http://www.w3.org/1999/xlink", "href", e.dataUri);
-                image.setAttribute("x", 0);
-                image.setAttribute("y", 0);
-                image.setAttribute("width", e.width);
-                image.setAttribute("height", e.height);
-                pattern.appendChild(image)
-                defs.appendChild(pattern);
+        if (!options.texture && options.binary64) {
+            ////getDataUri(options.binary64, function (e) {
+            var e = new Image();
+            e.src = options.binary64;
+            var defs = document.getElementsByTagName("defs")[0];
+            var pattern = document.createElementNS("http://www.w3.org/2000/svg", "pattern");
+            pattern.setAttribute("id", textureName);
+            //pattern.setAttribute("x", 0);
+            //pattern.setAttribute("y", 0);
+            pattern.setAttribute("width", e.width);
+            pattern.setAttribute("height", e.height);
+            pattern.setAttribute("patternUnits", "userSpaceOnUse");
+            //pattern.setAttribute("patternContentUnits", "objectBoundingBox");
+            //pattern.setAttribute("background-repeat", "no-repeat");
+            var image = document.createElementNS("http://www.w3.org/2000/svg", "image");
+            image.setAttributeNS("http://www.w3.org/1999/xlink", "href", options.binary64);
+            image.setAttribute("x", 0);
+            image.setAttribute("y", 0);
+            image.setAttribute("width", e.width);
+            image.setAttribute("height", e.height);
+            pattern.appendChild(image)
+            defs.appendChild(pattern);
+            textures[textureName].image = options.binary64;
 
-            });
+            //});
         }
     }
     return textures[textureName];
@@ -1384,6 +1400,7 @@ function animate(e) {
 
     text = "Render: " + t_Renderer + ", Shapes: " + t_Shapes + ", FPS: " + _fps + ", DrawTime: " + ("0" + drawTime).slice(-2) + "ms";
     text += ", Cursor: " + t_x + " " + t_y;
+    text += ", Heap: " + Math.round(console.memory.totalJSHeapSize / 1024);
 
 
     statusSpan.textContent = text;

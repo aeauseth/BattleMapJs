@@ -130,12 +130,25 @@ var rectangle = function (props) {
         if (!this.pattern) {
             //console.log(this.fillStyle);
             this.geometry = document.createElementNS("http://www.w3.org/2000/svg", "image");
-            this.geometry.setAttributeNS("http://www.w3.org/1999/xlink", "href", this.fillStyle);
+            this.geometry.setAttributeNS("http://www.w3.org/1999/xlink", "href", this.fillStyle.image);
         } else {
+            
             this.geometry = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-            this.geometry.setAttribute("fill", this.fillStyle);
+            if (this.fillStyle.pattern) {
+                this.geometry.setAttribute("fill", this.fillStyle.pattern);
+            } else {
+                this.geometry.setAttribute("fill", this.fillStyle);
+            }
         }
         
+        if (this.snapToGrid) {
+            if (this.width < gridSizeInPixels) {
+                this.point[0] = Number(this.point[0]) + (gridSizeInPixels - this.width) / 2;
+            }
+            if (this.height < gridSizeInPixels) {
+                this.point[1] = Number(this.point[1]) + (gridSizeInPixels - this.height) / 2;
+            }
+        }
         
 
         this.geometry.setAttribute("x", this.point[0]);
@@ -158,19 +171,19 @@ var rectangle = function (props) {
 
     }
 
-    this.draw = function (ctx) {
-        this.ctx = layers["backgroundLayer"].ctx;
-        this.ctx.fillStyle = "black";
-        if (typeof (this.fillStyle) == "string") {
-            this.ctx.fillStyle = this.fillStyle;
-        } else {
-            this.ctx.fillStyle = this.fillStyle.pattern;
-        }
-        var x = this.point[0];
-        var y = this.point[1];
+    //this.draw = function (ctx) {
+    //    this.ctx = layers["backgroundLayer"].ctx;
+    //    this.ctx.fillStyle = "black";
+    //    if (typeof (this.fillStyle) == "string") {
+    //        this.ctx.fillStyle = this.fillStyle;
+    //    } else {
+    //        this.ctx.fillStyle = this.fillStyle.pattern;
+    //    }
+    //    var x = this.point[0];
+    //    var y = this.point[1];
 
-        ctx.fillRect(x, y, this.width, this.height);
-    }
+    //    ctx.fillRect(x, y, this.width, this.height);
+    //}
 
     this.select = function () {
         if (selectedShape === _self) return;
@@ -179,6 +192,12 @@ var rectangle = function (props) {
         }
         selectedShape = _self;
         this.geometry.style.cursor = "move";
+
+        //if (this.tokenProps) {
+        //    var title = document.createElement("title");
+        //    title.innerText = this.tokenProps.name;
+        //    this.geometry.appendChild(title);
+        //}
        
 
         console.log("select", _self);
@@ -208,6 +227,11 @@ var rectangle = function (props) {
 
         this.geometry.style.cursor = "";
 
+        // Remove title
+        //while (this.geometry.firstChild) {
+        //    this.geometry.removeChild(this.geometry.firstChild);
+        //}
+
         selectedShape = undefined;
     }
 
@@ -225,13 +249,22 @@ var rectangle = function (props) {
     }
 
 
+
     this.moveTo = function (x, y) {
         var xx = x - _self.dragOffset[0];
         var yy = y - _self.dragOffset[1];
 
-        if (lastMouse.ctrlKey) {
+        if (lastMouse.ctrlKey || this.snapToGrid) {
             xx = Math.round(xx / gridSizeInPixels) * gridSizeInPixels;
             yy = Math.round(yy / gridSizeInPixels) * gridSizeInPixels;
+
+            if (_self.width < gridSizeInPixels) {
+                xx += (gridSizeInPixels - _self.width ) / 2;
+            }
+
+            if (_self.height < gridSizeInPixels) {
+                yy += (gridSizeInPixels - _self.height) / 2;
+            }
         }
 
         _self.point[0] = xx;
@@ -310,6 +343,7 @@ var rectangle = function (props) {
         return clipPath;
 
     }
+    return this;
 }
 
 var line = function (props) {
