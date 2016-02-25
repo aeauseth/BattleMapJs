@@ -48,10 +48,19 @@ document.getElementById('InputFile').onchange = function (event) {
                 var originalFilename = $(assetMapDoc).find("name").text() + "." + $(assetMapDoc).find("extension").text();
                 var hashFileName = assetText + "." + $(assetMapDoc).find("extension").text();
 
-                //console.log(fileName);
-                var assetImage = zip.file("assets/" + hashFileName).asBinary();
-                var img = document.createElement('img');
-                img.src = "data:image/jpeg;base64," + btoa(assetImage);
+                console.time(hashFileName);
+                var assetImage;
+                //if (localStorage[assetText]) {
+                //    assetImage = JSON.parse(localStorage[assetText]);
+                //    console.log("localStorage");
+                //} else {
+                assetImage = zip.file("assets/" + hashFileName).asBinary();
+                //localStorage[assetText] = JSON.stringify(assetImage);
+                //console.log("zip");
+                //}
+                console.timeEnd(hashFileName);
+                //var img = document.createElement('img');
+                //img.src = "data:image/jpeg;base64," + btoa(assetImage);
 
                 var tokenEntry = entry.children("net\\.rptools\\.maptool\\.model\\.Token");
 
@@ -82,8 +91,8 @@ document.getElementById('InputFile').onchange = function (event) {
                 shapeProps.layer = "";
                 shapeProps.x = tokenProps.x;
                 shapeProps.y = tokenProps.y;
-                shapeProps.width = img.naturalWidth;
-                shapeProps.height = img.naturalHeight;
+                shapeProps.width = tokenProps.width; //img.naturalWidth;
+                shapeProps.height = tokenProps.width; //img.naturalHeight;
 
                 if (tokenProps.layer == "BACKGROUND") {
                     shapeProps.layer = "background";
@@ -107,13 +116,13 @@ document.getElementById('InputFile').onchange = function (event) {
                     shapeProps.height = gridSizeInPixels * .6;
                 }
 
-                if ((tokenProps.sizeMap == "fwABAc1lFSoCAAAAKgABAQ==" ) && tokenProps.layer == "TOKEN") {
+                if ((tokenProps.sizeMap == "fwABAc1lFSoCAAAAKgABAQ==") && tokenProps.layer == "TOKEN") {
                     shapeProps.size = "Diminutive";
                     shapeProps.width = gridSizeInPixels * .7;
                     shapeProps.height = gridSizeInPixels * .7;
                 }
 
-                if ((tokenProps.sizeMap == "fwABAc5lFSoEAAAAKgABAA==" ) && tokenProps.layer == "TOKEN") {
+                if ((tokenProps.sizeMap == "fwABAc5lFSoEAAAAKgABAA==") && tokenProps.layer == "TOKEN") {
                     shapeProps.size = "Small"
                     shapeProps.width = gridSizeInPixels * .8;
                     shapeProps.height = gridSizeInPixels * .8;
@@ -171,8 +180,8 @@ document.getElementById('InputFile').onchange = function (event) {
 
                     shape.tokenProps = tokenProps;
                     shape.shapeProps = shapeProps;
-                    
-                    
+
+
                     //Z-index
                     if (tokenProps.z > 0) {
                         shape.geometry.setAttribute("z", tokenProps.z);
