@@ -29,93 +29,63 @@ var rectangle = function (props) {
     }
 
     // solid color texture?
-    //if (settings.displayMode == "WebGL") {
-    //    shapes[_self.id] = _self;
-    //    if (typeof (this.fillStyle) == "string") {
-    //        var c = document.createElement('canvas');
-    //        var ctx = c.getContext('2d');
-    //        c.width = 1;
-    //        c.height = 1;
-    //        ctx.fillStyle = this.fillStyle;
-    //        ctx.fillRect(0, 0, c.width, c.height);
-    //        var t = new PIXI.Texture.fromCanvas(c);
-    //        this.sprite = new PIXI.Sprite(t);
-    //    }
-    //    if (typeof (this.fillStyle) == "object") {
-    //        if (this.tiledTexture) {
-    //            this.sprite = new PIXI.extras.TilingSprite(this.fillStyle, this.fillStyle.width, this.fillStyle.height);
-    //            this.sprite.tilePosition.x = this.point[0];
-    //            this.sprite.tilePosition.y = this.point[1];
-    //        } else {
-    //            this.sprite = new PIXI.Sprite(this.fillStyle);
-    //        }
+    if (settings.displayMode == "WebGL") {
+        shapes[_self.id] = _self;
+        if (typeof (this.fillStyle) == "string") {
+            var c = document.createElement('canvas');
+            var ctx = c.getContext('2d');
+            c.width = 1;
+            c.height = 1;
+            ctx.fillStyle = this.fillStyle;
+            ctx.fillRect(0, 0, c.width, c.height);
+            var t = new PIXI.Texture.fromCanvas(c);
+            this.sprite = new PIXI.Sprite(t);
+        }
+        if (typeof (this.fillStyle) == "object") {
+            if (this.tiledTexture) {
+                this.sprite = new PIXI.extras.TilingSprite(this.fillStyle, this.fillStyle.width, this.fillStyle.height);
+                this.sprite.tilePosition.x = this.point[0];
+                this.sprite.tilePosition.y = this.point[1];
+            } else {
+                this.sprite = new PIXI.Sprite(this.fillStyle.image);
+            }
+        }
 
-    //        //this.sprite = new PIXI.Sprite.fromImage("Concrete-a.png");
-    //        //this.width = 50;
-    //        //this.height = 50;
-    //    }
+        this.sprite.buttonMode = true;
+        this.sprite.position.x = this.point[0];
+        this.sprite.position.y = this.point[1];
+        this.sprite.width = this.width;
+        this.sprite.height = this.height;
+        this.layer.addChild(this.sprite);
 
-    //    this.sprite.buttonMode = true;
-    //    this.sprite.position.x = this.point[0];
-    //    this.sprite.position.y = this.point[1];
-    //    this.sprite.width = this.width;
-    //    this.sprite.height = this.height;
-    //    this.layer.addChild(this.sprite);
-    //    //console.log(this.sprite);
+        this.sprite._self = _self;
+        this.sprite.interactive = this.layer === selectedLayer;
+        this.sprite.on("mousedown", function (e) {
+            _self.select();
+            var local = world.toLocal(e.data.global, stage);
+            _self.dragOffset = [local.x - _self.point[0], local.y - _self.point[1]];
+            _self.dragging = true;
 
-    //    this.sprite._self = _self;
-    //    this.sprite.interactive = this.layer === selectedLayer;
-    //    this.sprite.on("mousedown", function (e) {
-    //        _self.select();
-    //        var local = world.toLocal(e.data.global, stage);
-    //        _self.dragOffset = [local.x - _self.point[0], local.y - _self.point[1]];
-    //        _self.dragging = true;
+            e._stopPropegation = true;
+        });
 
-    //        //_self.mousedown();
+        this.sprite.on('mouseup', function (e) {
+            _self.dragging = false;
+        });
 
-    //        //var local = world.toLocal(e.data.global, stage);
-    //        //_self.offset = { x: local.x - _self.sprite.position.x, y: local.y - _self.sprite.position.y };
-    //        //_self.dragging = true;
-    //        //console.log("sprite.mousedown", _self);
-    //        e._stopPropegation = true;
-    //    });
+        this.sprite.on("mousemove", function (e) {
+            //window.lastMouse = e.data.originalEvent;
+            if (selectedShape !== _self) return;
+            if (e.data.originalEvent.which != 1) return;
+            if (!_self.dragging) return;
+            var local = world.toLocal(e.data.global, stage);
 
-    //    this.sprite.on('mouseup', function (e) {
-    //        _self.dragging = false;
-    //    });
+            _self.moveTo(local.x, local.y);
 
-    //    this.sprite.on("mousemove", function (e) {
-    //        //window.lastMouse = e.data.originalEvent;
-    //        if (selectedShape !== _self) return;
-    //        if (e.data.originalEvent.which != 1) return;
-    //        if (!_self.dragging) return;
-    //        var local = world.toLocal(e.data.global, stage);
-
-    //        _self.moveTo(local.x, local.y);
-
-
-    //        //if (!_self.dragging) return;
-
-    //        ////if (e.data.originalEvent.which == 1) {
-    //        //var local = world.toLocal(e.data.global, stage);
-
-    //        //_self.sprite.position.x = local.x - _self.offset.x;
-    //        //_self.sprite.position.y = local.y - _self.offset.y;
-
-    //        //_self.adorner._adornNode.setAttribute("x", _self.sprite.position.x);
-    //        //_self.adorner._adornNode2.setAttribute("x", _self.sprite.position.x);
-    //        //_self.adorner._adornNode.setAttribute("y", _self.sprite.position.y);
-    //        //_self.adorner._adornNode2.setAttribute("y", _self.sprite.position.y)
-    //        //}
-    //        //console.log("mousemove");
-
-
-    //    });
-    //}
+        });
+    }
 
     this.move = function (e) {
-        //var lc = localCoordinates();
-
         _self.moveTo(mouseLocalPosition.x, mouseLocalPosition.y);
     }
 
@@ -132,7 +102,7 @@ var rectangle = function (props) {
             this.geometry = document.createElementNS("http://www.w3.org/2000/svg", "image");
             this.geometry.setAttributeNS("http://www.w3.org/1999/xlink", "href", this.fillStyle.image);
         } else {
-            
+
             this.geometry = document.createElementNS("http://www.w3.org/2000/svg", "rect");
             if (this.fillStyle.pattern) {
                 this.geometry.setAttribute("fill", this.fillStyle.pattern);
@@ -140,7 +110,7 @@ var rectangle = function (props) {
                 this.geometry.setAttribute("fill", this.fillStyle);
             }
         }
-        
+
         if (this.snapToGrid) {
             if (this.width < gridSizeInPixels) {
                 this.point[0] = Number(this.point[0]) + (gridSizeInPixels - this.width) / 2;
@@ -149,7 +119,7 @@ var rectangle = function (props) {
                 this.point[1] = Number(this.point[1]) + (gridSizeInPixels - this.height) / 2;
             }
         }
-        
+
 
         this.geometry.setAttribute("x", this.point[0]);
         this.geometry.setAttribute("y", this.point[1]);
@@ -157,7 +127,7 @@ var rectangle = function (props) {
         this.geometry.setAttribute("height", this.height);
 
 
-        
+
         this.layer.appendChild(this.geometry);
         this.geometry.onmousedown = function (e) {
             //console.log("geometry onmousedown", e, _self);
@@ -198,7 +168,7 @@ var rectangle = function (props) {
         //    title.innerText = this.tokenProps.name;
         //    this.geometry.appendChild(title);
         //}
-       
+
 
         console.log("select", _self);
 
@@ -235,6 +205,12 @@ var rectangle = function (props) {
         selectedShape = undefined;
     }
 
+    this.setZ = function (z) {
+        if (settings.displayMode == "svg") {
+            _self.geometry.setAttribute("z", z);
+        }
+    }
+
     this.drag = function (deltaX, deltaY) {
         _self.point[0] += deltaX;
         _self.point[1] += deltaY;
@@ -259,7 +235,7 @@ var rectangle = function (props) {
             yy = Math.round(yy / gridSizeInPixels) * gridSizeInPixels;
 
             if (_self.width < gridSizeInPixels) {
-                xx += (gridSizeInPixels - _self.width ) / 2;
+                xx += (gridSizeInPixels - _self.width) / 2;
             }
 
             if (_self.height < gridSizeInPixels) {
