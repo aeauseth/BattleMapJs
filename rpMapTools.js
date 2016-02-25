@@ -183,10 +183,13 @@ document.getElementById('InputFile').onchange = function (event) {
 
 
                     //Z-index
+                    
                     if (tokenProps.z > 0) {
-                        shape.geometry.setAttribute("z", tokenProps.z);
+                        shape.setZ(tokenProps.z);
+                        //shape.geometry.setAttribute("z", tokenProps.z);
                     } else {
-                        shape.geometry.setAttribute("z", 0);
+                        shape.setZ(0);
+                        //shape.geometry.setAttribute("z", 0);
                     }
 
 
@@ -204,19 +207,23 @@ document.getElementById('InputFile').onchange = function (event) {
             });
 
             // Sort background layer by Z-index
-            $(layers["background"]).children("").sort(function (a, b) {
-                return $(a).attr('z') - $(b).attr('z');
-            })
-            .appendTo(layers["background"]);
+            if (settings.displayMode == "svg") {
+                $(layers["background"]).children("").sort(function (a, b) {
+                    return $(a).attr('z') - $(b).attr('z');
+                })
+                .appendTo(layers["background"]);
 
-            // Sort token layer by Z-index
-            $(layers["token"]).children("").sort(function (a, b) {
-                return $(a).attr('z') - $(b).attr('z');
-            })
-            .appendTo(layers["token"]);
+                // Sort token layer by Z-index
+                $(layers["token"]).children("").sort(function (a, b) {
+                    return $(a).attr('z') - $(b).attr('z');
+                })
+                .appendTo(layers["token"]);
+            }
 
             // ToDo: Am I suppose to close a zip/reader?
 
+            // Clear InputFile value so if we pick the same file to import again the .onchange event fires
+            document.getElementById('InputFile').value = "";
         };
         reader.readAsArrayBuffer(fileToLoad);
 

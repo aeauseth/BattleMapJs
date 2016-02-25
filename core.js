@@ -11,10 +11,10 @@ var settings = { displayMode: "WebGL" };
 var selectedLayer;
 var mouseLocalPosition = { x: 0, y: 0 };
 
-// Manuall set displayMode
+// Manually set displayMode
 //settings.displayMode = "WebGL";
 //settings.displayMode = "Canvas";
-settings.displayMode = "svg";
+//settings.displayMode = "svg";
 
 
 var layers = {};
@@ -33,26 +33,15 @@ var lastMouse = undefined;
 
 $(document).ready(function () {
     console.log("ready!");
-
-
-
-    //if (settings.displayMode == "WebGL") {
-    //    var c = document.createElement("canvas");
-    //    c.setAttribute("id", "pixiCanvas");
-    //    canvasDiv.appendChild(c);
-    //    window.renderer = new PIXI.WebGLRenderer(window.innerWidth, window.innerHeight, { view: pixiCanvas, transparent: false });
-    //    //window.renderer = new PIXI.CanvasRenderer(window.innerWidth, window.innerHeight, { view: pixiCanvas, transparent: false });
-
-    //    //canvasDiv.appendChild(renderer.view);
-    //    window.renderer.backgroundColor = 0xb0c4de;
-    //    window.stage = new PIXI.Container();
-    //    window.world = new PIXI.Container();
-    //    stage.addChild(world);
-    //}
-
-    //setupLayers();
-
-    //setupGrid();
+    
+    // Read settings
+    if (localStorage.settings) {
+        settings = JSON.parse(localStorage.settings);
+    }
+    if (!settings.displayMode) {
+        settings.displayMode = "svg";
+    }
+    localStorage.settings = JSON.stringify(settings);
 
     reset();
 
@@ -520,34 +509,79 @@ function addLayer(layerName, beforeLayer) {
 }
 
 function setupLayers() {
-    //if (settings.displayMode == "WebGL") {
-    //    layers["background"] = new PIXI.Container();
-    //    layers["background"].layer = "background";
-    //    world.addChild(layers["background"]);
+    switch (settings.displayMode) {
+        case "WebGL":
 
-    //    layers["grid"] = new PIXI.Container();
-    //    layers["grid"].layer = "grid";
-    //    world.addChild(layers["grid"]);
 
-    //    layers["token"] = new PIXI.Container();
-    //    layers["token"].layer = "token";
-    //    world.addChild(layers["token"]);
+            layers["background"] = new PIXI.Container();
+            layers["background"].layer = "background";
+            world.addChild(layers["background"]);
 
-    //    var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    //    svg.setAttribute("id", "svgCanvas");
-    //    svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+            layers["grid"] = new PIXI.Container();
+            layers["grid"].layer = "grid";
+            world.addChild(layers["grid"]);
 
-    //    var raycastLayer = document.createElementNS("http://www.w3.org/2000/svg", "g");
-    //    raycastLayer.id = "raycastLayer";
-    //    svg.appendChild(raycastLayer);
-    //    layers["raycast"] = raycastLayer;
+            layers["token"] = new PIXI.Container();
+            layers["token"].layer = "token";
+            world.addChild(layers["token"]);
 
-    //    var g = document.createElementNS("http://www.w3.org/2000/svg", "g");
-    //    g.id = "adornerLayer";
-    //    svg.appendChild(g);
-    //    canvasDiv.appendChild(svg);
-    //    layers["adorner"] = { svgGroup: g, svg: svg };
+            var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            svg.setAttribute("id", "svgCanvas");
+            svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
 
+            var raycastLayer = document.createElementNS("http://www.w3.org/2000/svg", "g");
+            raycastLayer.id = "raycastLayer";
+            svg.appendChild(raycastLayer);
+            layers["raycast"] = raycastLayer;
+
+            var g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+            g.id = "adornerLayer";
+            svg.appendChild(g);
+            canvasDiv.appendChild(svg);
+            layers["adorner"] = { svgGroup: g, svg: svg };
+            break;
+
+        case "svg":
+            var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            svg.setAttribute("id", "svgCanvas");
+            svg.style.backgroundColor = "lightsteelblue";
+            svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+
+            canvasDiv.appendChild(svg);
+
+            var clickthruLayer = document.createElementNS("http://www.w3.org/2000/svg", "g");
+            clickthruLayer.setAttribute("id", "clickthruLayer");
+            svg.appendChild(clickthruLayer);
+
+            var backgroundLayer = document.createElementNS("http://www.w3.org/2000/svg", "g");
+            //addLayer("background");
+            //backgroundLayer.layer = "background";
+            backgroundLayer.setAttribute("id", "backgroundLayer");
+            layers["background"] = backgroundLayer;
+            svg.appendChild(backgroundLayer);
+
+            var gridLayer = document.createElementNS("http://www.w3.org/2000/svg", "g");
+            //addLayer("grid");
+            //gridLayer.layer = "grid";
+            gridLayer.setAttribute("id", "gridLayer");
+            layers["grid"] = gridLayer;
+            svg.appendChild(gridLayer);
+
+            var tokenLayer = document.createElementNS("http://www.w3.org/2000/svg", "g");
+            //addLayer("token");
+            //tokenLayer.layer = "token";
+            tokenLayer.setAttribute("id", "tokenLayer");
+            layers["token"] = tokenLayer;
+            svg.appendChild(tokenLayer);
+
+            var adornLayer = document.createElementNS("http://www.w3.org/2000/svg", "g");
+            //addLayer("adorner");
+            //adornLayer.layer = "adorner";
+            adornLayer.setAttribute("id", "adornLayer");
+            layers["adorner"] = adornLayer;
+            svg.appendChild(adornLayer);
+            break;
+    }
 
 
 
@@ -570,44 +604,7 @@ function setupLayers() {
     //}
 
     if (settings.displayMode == "svg") {
-        var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-        svg.setAttribute("id", "svgCanvas");
-        svg.style.backgroundColor = "lightsteelblue";
-        svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
 
-        canvasDiv.appendChild(svg);
-
-        var clickthruLayer = document.createElementNS("http://www.w3.org/2000/svg", "g");
-        clickthruLayer.setAttribute("id", "clickthruLayer");
-        svg.appendChild(clickthruLayer);
-
-        var backgroundLayer = document.createElementNS("http://www.w3.org/2000/svg", "g");
-        //addLayer("background");
-        //backgroundLayer.layer = "background";
-        backgroundLayer.setAttribute("id", "backgroundLayer");
-        layers["background"] = backgroundLayer;
-        svg.appendChild(backgroundLayer);
-
-        var gridLayer = document.createElementNS("http://www.w3.org/2000/svg", "g");
-        //addLayer("grid");
-        //gridLayer.layer = "grid";
-        gridLayer.setAttribute("id", "gridLayer");
-        layers["grid"] = gridLayer;
-        svg.appendChild(gridLayer);
-
-        var tokenLayer = document.createElementNS("http://www.w3.org/2000/svg", "g");
-        //addLayer("token");
-        //tokenLayer.layer = "token";
-        tokenLayer.setAttribute("id", "tokenLayer");
-        layers["token"] = tokenLayer;
-        svg.appendChild(tokenLayer);
-
-        var adornLayer = document.createElementNS("http://www.w3.org/2000/svg", "g");
-        //addLayer("adorner");
-        //adornLayer.layer = "adorner";
-        adornLayer.setAttribute("id", "adornLayer");
-        layers["adorner"] = adornLayer;
-        svg.appendChild(adornLayer);
     }
 
     layers_keys_cache = Object.keys(layers);
@@ -619,11 +616,21 @@ function setupLayers() {
 function resize() {
     //viewBox.width = svgCanvas.clientWidth / viewBox.z;
     //viewBox.height = svgCanvas.clientHeight / viewBox.z;  //window.innerHeight - nav1.clientHeight - nav2.clientHeight - statusDiv.clientHeight - 1;
-    svgCanvas.setAttribute("width", window.innerWidth);
-    svgCanvas.setAttribute("height", window.innerHeight - nav1.clientHeight - nav2.clientHeight - statusDiv.clientHeight - 1);
-    viewBox.width = svgCanvas.clientWidth / viewBox.z;
-    viewBox.height = svgCanvas.clientHeight / viewBox.z;
 
+
+    switch (settings.displayMode) {
+        case "svg":
+            svgCanvas.setAttribute("width", window.innerWidth);
+            svgCanvas.setAttribute("height", window.innerHeight - nav1.clientHeight - nav2.clientHeight - statusDiv.clientHeight - 1);
+            viewBox.width = svgCanvas.clientWidth / viewBox.z;
+            viewBox.height = svgCanvas.clientHeight / viewBox.z;
+            svgCanvas.setAttribute("viewBox", viewBox.x + " " + viewBox.y + " " + viewBox.width + " " + viewBox.height);
+            layers["grid"].children[0].setAttribute("x", viewBox.x);
+            layers["grid"].children[0].setAttribute("y", viewBox.y);
+            clickthruLayer.children[0].setAttribute("x", viewBox.x);
+            clickthruLayer.children[0].setAttribute("y", viewBox.y);
+            break;
+    }
 
     //if (settings.displayMode == "WebGL") {
     //    //this part resizes the canvas but keeps ratio the same
@@ -656,11 +663,7 @@ function resize() {
     //}
     //updateSvgTransform();
 
-    svgCanvas.setAttribute("viewBox", viewBox.x + " " + viewBox.y + " " + viewBox.width + " " + viewBox.height);
-    layers["grid"].children[0].setAttribute("x", viewBox.x);
-    layers["grid"].children[0].setAttribute("y", viewBox.y);
-    clickthruLayer.children[0].setAttribute("x", viewBox.x);
-    clickthruLayer.children[0].setAttribute("y", viewBox.y);
+
 }
 
 var tokenList = [];
@@ -731,77 +734,68 @@ function setupGrid() {
 
     //var useSVG = false;
 
-    //if (settings.displayMode == "WebGL") {
+    switch (settings.displayMode) {
+        case "WebGL":
+            var c = document.createElement('canvas');
+            var ctx = c.getContext('2d');
+            c.width = gridSizeInPixels * 1;
+            c.height = gridSizeInPixels * 1;
+            ctx.lineWidth = 1;
+            ctx.strokeStyle = "black";
+            ctx.rect(0, 0, c.width, c.height);
+            ctx.stroke();
 
-    //    var c = document.createElement('canvas');
-    //    var ctx = c.getContext('2d');
-    //    c.width = gridSizeInPixels * 1;
-    //    c.height = gridSizeInPixels * 1;
-    //    ctx.lineWidth = 1;
-    //    ctx.strokeStyle = "black";
-    //    ctx.rect(0, 0, c.width, c.height);
-    //    ctx.stroke();
-    //    //console.log(c);
+            var ts = new PIXI.extras.TilingSprite(PIXI.Texture.fromCanvas(c, PIXI.SCALE_MODES.DEFAULT), 65535, 65535);
+            ts.x = Math.floor(-65535 / 2 / 50) * 50 - 0;
+            ts.y = ts.x;
+            ts.scale.x = 1 / 1;
+            ts.scale.y = 1 / 1;
+            ts.name = "grid";
+            layers["grid"].addChild(ts);
+            gridSprite = ts;
 
-    //    var ts = new PIXI.extras.TilingSprite(PIXI.Texture.fromCanvas(c, PIXI.SCALE_MODES.DEFAULT), 65535, 65535);
-    //    ts.x = Math.floor(-65535 / 2 / 50) * 50 - 0;
-    //    ts.y = ts.x;
-    //    ts.scale.x = 1 / 1;
-    //    ts.scale.y = 1 / 1;
-    //    ts.name = "grid";
-    //    layers["grid"].addChild(ts);
-    //    gridSprite = ts;
-    //    //updateGrid();
-    //    //console.log(ts);
+            break;
 
-    //    //ts.interactive = true;
-    //    //ts.on("mousedown", function (e) {
-    //    //    if (selectedShape) {
-    //    //        selectedShape.unselect();
-    //    //    }
-    //    //});
-    //}
+        case "svg":
+            var defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+            var pattern = document.createElementNS("http://www.w3.org/2000/svg", "pattern");
+            pattern.setAttribute("id", "basicPattern");
+            pattern.setAttribute("x", 0);
+            pattern.setAttribute("y", 0);
+            pattern.setAttribute("height", 50);
+            pattern.setAttribute("width", 50);
+            pattern.setAttribute("patternUnits", "userSpaceOnUse");
+            var polyline = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
 
-    if (settings.displayMode == "svg") {
-        var defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
-        var pattern = document.createElementNS("http://www.w3.org/2000/svg", "pattern");
-        pattern.setAttribute("id", "basicPattern");
-        pattern.setAttribute("x", 0);
-        pattern.setAttribute("y", 0);
-        pattern.setAttribute("height", 50);
-        pattern.setAttribute("width", 50);
-        pattern.setAttribute("patternUnits", "userSpaceOnUse");
-        var polyline = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+            polyline.setAttribute("points", "0, " + gridSizeInPixels + " 0,0 " + gridSizeInPixels + ",0");
+            polyline.setAttribute("fill", "none");
+            polyline.setAttribute("stroke", "black");
+            polyline.setAttribute("stroke-width", 1);
+            //polyline.setAttribute("vector-effect", "non-scaling-stroke");
 
-        polyline.setAttribute("points", "0, " + gridSizeInPixels + " 0,0 " + gridSizeInPixels + ",0");
-        polyline.setAttribute("fill", "none");
-        polyline.setAttribute("stroke", "black");
-        polyline.setAttribute("stroke-width", 1);
-        //polyline.setAttribute("vector-effect", "non-scaling-stroke");
+            pattern.appendChild(polyline);
+            defs.appendChild(pattern);
+            layers["grid"].parentElement.insertBefore(defs, layers["grid"].parentElement.firstChild);
 
-        pattern.appendChild(polyline);
-        defs.appendChild(pattern);
-        layers["grid"].parentElement.insertBefore(defs, layers["grid"].parentElement.firstChild);
+            var rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+            rect.setAttribute("x", 0);
+            rect.setAttribute("y", 0);
+            rect.setAttribute("width", "100%");
+            rect.setAttribute("height", "100%");
+            rect.setAttribute("fill", "url(#basicPattern)");
+            rect.setAttribute("id", "grid");
+            //var gridLayer = document.getElementById("gridLayer");
+            layers["grid"].appendChild(rect);
 
-        var rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-        rect.setAttribute("x", 0);
-        rect.setAttribute("y", 0);
-        rect.setAttribute("width", "100%");
-        rect.setAttribute("height", "100%");
-        rect.setAttribute("fill", "url(#basicPattern)");
-        rect.setAttribute("id", "grid");
-        //var gridLayer = document.getElementById("gridLayer");
-        layers["grid"].appendChild(rect);
-
-        var rect2 = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-        rect2.setAttribute("x", 0);
-        rect2.setAttribute("y", 0);
-        rect2.setAttribute("width", "100%");
-        rect2.setAttribute("height", "100%");
-        rect2.setAttribute("fill", "url(#basicPattern)");
-        rect2.setAttribute("id", "grid2");
-        clickthruLayer.appendChild(rect2);
-
+            var rect2 = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+            rect2.setAttribute("x", 0);
+            rect2.setAttribute("y", 0);
+            rect2.setAttribute("width", "100%");
+            rect2.setAttribute("height", "100%");
+            rect2.setAttribute("fill", "url(#basicPattern)");
+            rect2.setAttribute("id", "grid2");
+            clickthruLayer.appendChild(rect2);
+            break;
     }
 
     //if (settings.displayMode == "Canvas") {
@@ -831,19 +825,43 @@ function resizeGrid(newGridSize) {
     //pattern.setAttribute("id", "basicPattern");
     //pattern.setAttribute("x", 0);
     //pattern.setAttribute("y", 0);
-    basicPattern.setAttribute("height", gridSizeInPixels);
-    basicPattern.setAttribute("width", gridSizeInPixels);
-    //pattern.setAttribute("patternUnits", "userSpaceOnUse");
 
-    var polyline = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+    switch (settings.displayMode) {
+        case "WebGL":
+            var c = document.createElement('canvas');
+            var ctx = c.getContext('2d');
+            c.width = gridSizeInPixels * 1;
+            c.height = gridSizeInPixels * 1;
+            ctx.lineWidth = 1;
+            ctx.strokeStyle = "black";
+            ctx.rect(0, 0, c.width, c.height);
+            ctx.stroke();
 
-    polyline.setAttribute("points", "0, " + gridSizeInPixels + " 0,0 " + gridSizeInPixels + ",0");
-    polyline.setAttribute("fill", "none");
-    polyline.setAttribute("stroke", "black");
-    polyline.setAttribute("stroke-width", 1);
-    //polyline.setAttribute("vector-effect", "non-scaling-stroke");
+            var ts = new PIXI.extras.TilingSprite(PIXI.Texture.fromCanvas(c, PIXI.SCALE_MODES.DEFAULT), 65535, 65535);
+            ts.x = Math.floor(-65535 / 2 / 50) * 50 - 0;
+            ts.y = ts.x;
+            ts.scale.x = 1 / 1;
+            ts.scale.y = 1 / 1;
+            ts.name = "grid";
+            layers["grid"].removeChildren();
+            layers["grid"].addChild(ts);
+            gridSprite = ts;
+            break;
+        case "svg":
+            basicPattern.setAttribute("height", gridSizeInPixels);
+            basicPattern.setAttribute("width", gridSizeInPixels);
+            var polyline = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
 
-    basicPattern.children[0] = polyline;
+            polyline.setAttribute("points", "0, " + gridSizeInPixels + " 0,0 " + gridSizeInPixels + ",0");
+            polyline.setAttribute("fill", "none");
+            polyline.setAttribute("stroke", "black");
+            polyline.setAttribute("stroke-width", 1);
+            basicPattern.children[0] = polyline;
+            break;
+    }
+
+
+    
 }
 
 
@@ -901,13 +919,32 @@ function generateUUID() {
     return uuid;
 }
 
-function reset() {
+function reset(displayMode) {
+
+    if (displayMode) {
+        settings.displayMode = displayMode;
+        localStorage.settings = JSON.stringify(settings);
+    }
 
     if (selectedShape) {
         selectedShape.unselect();
     }
 
     light = undefined;
+
+    switch (settings.displayMode) {
+
+
+        case "svg":
+            // Remove All Svg Elements
+            if (window.svgCanvas) {
+                while (svgCanvas.firstChild) {
+                    svgCanvas.removeChild(svgCanvas.firstChild);
+                }
+            }
+            break;
+    }
+
 
     //if (settings.displayMode == "WebGL") {
 
@@ -938,12 +975,7 @@ function reset() {
 
 
 
-    // Remove All Svg Elements
-    if (window.svgCanvas) {
-        while (svgCanvas.firstChild) {
-            svgCanvas.removeChild(svgCanvas.firstChild);
-        }
-    }
+
     //    for (var i = 0; i < layers_keys_length_cache; i++) {
     //        var layer = layers[layers_keys_cache[i]];
     //        if (layer.nodeName) {
@@ -957,6 +989,7 @@ function reset() {
     //        }
     //    }
     //}
+
     while (canvasDiv.firstChild) {
         canvasDiv.removeChild(canvasDiv.firstChild);
     }
@@ -965,17 +998,37 @@ function reset() {
     textures = {};
     gridSizeInPixels = 50;
 
-    setupLayers();
-    setupGrid();
-
-    viewBox.x = 0;
-    viewBox.y = 0;
-    viewBox.z = 1;
-    viewBox.width = window.innerWidth;
-    viewBox.height = window.innerHeight;
 
 
-    setupSvgEvents();
+
+
+    switch (settings.displayMode) {
+        case "WebGL":
+            window.renderer = new PIXI.WebGLRenderer(window.innerWidth, window.innerHeight);
+            renderer.view.id = "pixiCanvas";
+            canvasDiv.appendChild(renderer.view);
+            window.renderer.backgroundColor = 0xb0c4de;
+            window.stage = new PIXI.Container();
+            window.world = new PIXI.Container();
+            stage.addChild(world);
+
+            setupLayers();
+            setupGrid();
+            break;
+        case "svg":
+            setupLayers();
+            setupGrid();
+
+            viewBox.x = 0;
+            viewBox.y = 0;
+            viewBox.z = 1;
+            viewBox.width = window.innerWidth;
+            viewBox.height = window.innerHeight;
+            setupSvgEvents();
+            break;
+            //case "wegGL": setupWebGLEvents(); break;
+    }
+
     selectLayer("background");
 
     resize();
@@ -1163,9 +1216,17 @@ function textureHandler(textureName, options) {
             image.setAttribute("width", e.width);
             image.setAttribute("height", e.height);
             pattern.appendChild(image)
-            defs.appendChild(pattern);
-            textures[textureName].image = options.binary64;
 
+            if (settings.displayMode == "svg") {
+                defs.appendChild(pattern);
+                textures[textureName].image = options.binary64;
+            }
+            
+            if (settings.displayMode == "WebGL") {
+                var base = new PIXI.BaseTexture(e);
+                var texture = new PIXI.Texture(base);
+                textures[textureName].image = texture;
+            }
             //});
         }
     }
@@ -1225,29 +1286,32 @@ function selectLayer(layer) {
         selectedShape.unselect();
     }
 
-    for (var i = 0; i < layers_keys_length_cache; i++) {
-        layers[layers_keys_cache[i]].setAttribute("pointer-events", "none");
+
+
+    switch (settings.displayMode) {
+        case "svg":
+
+            if (selectedLayer) {
+                document.getElementById((selectedLayer.layer || selectedLayer.id) + "ListItem").classList.remove("selectedButton");
+            }
+
+            for (var i = 0; i < layers_keys_length_cache; i++) {
+                layers[layers_keys_cache[i]].setAttribute("pointer-events", "none");
+            }
+
+
+            selectedLayer = layers[layer];
+            selectedLayer.removeAttribute("pointer-events");
+
+            var elem = document.getElementById((selectedLayer.layer || selectedLayer.id) + "ListItem");
+            if (elem) {
+                elem.classList.add("selectedButton");
+            }
+
+            break;
     }
 
-    if (selectedLayer) {
-        //if (selectedLayer.children) {
-        //    for (var i = 0; i < selectedLayer.children.length; i++) {
-        //        selectedLayer.setAttribute("pointer-events", "none");
-        //    }
-        //}
-        document.getElementById((selectedLayer.layer || selectedLayer.id) + "ListItem").classList.remove("selectedButton");
-    }
-    selectedLayer = layers[layer];
-    //if (selectedLayer.children) {
-    //    for (var i = 0; i < selectedLayer.children.length; i++) {
-    //        selectedLayer.removeAttribute("pointer-events");
-    //    }
-    //}
-    selectedLayer.removeAttribute("pointer-events");
-    var elem = document.getElementById((selectedLayer.layer || selectedLayer.id) + "ListItem");
-    if (elem) {
-        elem.classList.add("selectedButton");
-    }
+
 }
 
 function drawWebGL() {
