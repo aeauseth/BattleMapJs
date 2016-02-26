@@ -5,6 +5,7 @@ function importRpMap() {
     if (window.File && window.FileReader && window.FileList && window.Blob) {
         //ref: https://www.thewebflash.com/reading-and-creating-text-files-using-the-html5-file-api/
 
+        document.getElementById('InputFile').value = "";
         document.getElementById('InputFile').click();
 
     } else {
@@ -13,15 +14,46 @@ function importRpMap() {
 
 }
 
+var myWorker = new Worker("rpMapTools_worker.js");
+
+myWorker.onmessage = function (e) {
+    var _token = e.data;
+    console.log("Worker reported: ", _token.tokenProps.assetText); // : " + oEvent.data);
+
+    if (_token.shapeProps.layer > "") {
+
+        var shape = new rectangle({
+            point: [_token.shapeProps.x, _token.shapeProps.y],
+            width: _token.shapeProps.width,
+            height: _token.shapeProps.height,
+            //fillStyle: textureHandler(_token.tokenProps.assetText, { binary64: "data:image/jpeg;base64," + btoa(_token.assetImage) }),
+            fillStyle: textureHandler(_token.tokenProps.assetText, { binary64: "data:image/jpeg;base64," + _token.btoa }),
+            layer: _token.shapeProps.layer,
+            pattern: false,
+            snapToGrid: _token.tokenProps.snapToGrid
+        });
+
+        shape.tokenProps = _token.tokenProps;
+        shape.shapeProps = _token.shapeProps;
+    }
+};
+
+var _tokensToLoad = [];
+var _importZipContent;
+
 document.getElementById('InputFile').onchange = function (event) {
     var fileToLoad = event.target.files[0];
 
     if (fileToLoad) {
+
+        _tokensToLoad = [];
         var reader = new FileReader();
         reader.onload = function (fileLoadedEvent) {
+            //myWorker.postMessage(fileLoadedEvent.target.result);
 
             // ref: https://stuk.github.io/jszip/documentation/examples/read-local-file-api.html
-            var zip = new JSZip(fileLoadedEvent.target.result);
+            _importZipContent = fileLoadedEvent.target.result;
+            var zip = new JSZip(_importZipContent);
             window._zip = zip;
 
             var content = zip.file("content.xml").asText();
@@ -48,24 +80,13 @@ document.getElementById('InputFile').onchange = function (event) {
                 var originalFilename = $(assetMapDoc).find("name").text() + "." + $(assetMapDoc).find("extension").text();
                 var hashFileName = assetText + "." + $(assetMapDoc).find("extension").text();
 
-                console.time(hashFileName);
-                var assetImage;
-                //if (localStorage[assetText]) {
-                //    assetImage = JSON.parse(localStorage[assetText]);
-                //    console.log("localStorage");
-                //} else {
-                assetImage = zip.file("assets/" + hashFileName).asBinary();
-                //localStorage[assetText] = JSON.stringify(assetImage);
-                //console.log("zip");
-                //}
-                console.timeEnd(hashFileName);
-                //var img = document.createElement('img');
-                //img.src = "data:image/jpeg;base64," + btoa(assetImage);
+                //var assetImage;
+                //assetImage = zip.file("assets/" + hashFileName).asBinary();
+
 
                 var tokenEntry = entry.children("net\\.rptools\\.maptool\\.model\\.Token");
-
-
-
+                tokenProps.hashFileName = hashFileName;
+                tokenProps.assetText = assetText;
                 tokenProps.x = tokenEntry.children("x").text();
                 tokenProps.y = tokenEntry.children("y").text();
                 tokenProps.z = tokenEntry.children("z").text();
@@ -158,72 +179,71 @@ document.getElementById('InputFile').onchange = function (event) {
                     shapeProps.height = gridSizeInPixels * 6;
                 }
 
-                //if (tokenProps.snapToGrid && tokenProps.layer == "TOKEN") {
-                //    shapeProps.x = Math.floor(shapeProps.x / gridSizeInPixels) * gridSizeInPixels;
-                //    shapeProps.y = Math.floor(shapeProps.y / gridSizeInPixels) * gridSizeInPixels;
+                _tokensToLoad.push({ tokenProps: tokenProps, shapeProps: shapeProps });
+                //myWorker.postMessage([zip, hashFileName]);
+
+                //// Make sure we have an appropriate layer we can handle
+                //if (shapeProps.layer > "") {
+
+                //    var shape = new rectangle({
+                //        //point: vec2.fromValues(25, 25),
+                //        point: [shapeProps.x, shapeProps.y],
+                //        width: shapeProps.width,
+                //        height: shapeProps.height,
+                //        fillStyle: textureHandler(assetText, { binary64: "data:image/jpeg;base64," + btoa(assetImage) }),
+                //        //fillStyle: img.src,
+                //        layer: shapeProps.layer,
+                //        pattern: false,
+                //        snapToGrid: tokenProps.snapToGrid
+                //    });
+
+                //    shape.tokenProps = tokenProps;
+                //    shape.shapeProps = shapeProps;
+
+
+                //    //Z-index
+
+                //    if (tokenProps.z > 0) {
+                //        shape.setZ(tokenProps.z);
+                //        //shape.geometry.setAttribute("z", tokenProps.z);
+                //    } else {
+                //        shape.setZ(0);
+                //        //shape.geometry.setAttribute("z", 0);
+                //    }
+
+
+                //    // Facing
+                //    if (tokenProps.facing) {
+                //        //shape.rotate(tokenProps.facing);
+                //    }
+
                 //}
-
-                // Make sure we have an appropriate layer we can handle
-                if (shapeProps.layer > "") {
-
-                    var shape = new rectangle({
-                        //point: vec2.fromValues(25, 25),
-                        point: [shapeProps.x, shapeProps.y],
-                        width: shapeProps.width,
-                        height: shapeProps.height,
-                        fillStyle: textureHandler(assetText, { binary64: "data:image/jpeg;base64," + btoa(assetImage) }),
-                        //fillStyle: img.src,
-                        layer: shapeProps.layer,
-                        pattern: false,
-                        snapToGrid: tokenProps.snapToGrid
-                    });
-
-                    shape.tokenProps = tokenProps;
-                    shape.shapeProps = shapeProps;
-
-
-                    //Z-index
-                    
-                    if (tokenProps.z > 0) {
-                        shape.setZ(tokenProps.z);
-                        //shape.geometry.setAttribute("z", tokenProps.z);
-                    } else {
-                        shape.setZ(0);
-                        //shape.geometry.setAttribute("z", 0);
-                    }
-
-
-                    // Facing
-                    if (tokenProps.facing) {
-                        //shape.rotate(tokenProps.facing);
-                    }
-
-                }
 
 
                 // ToDo: move into worker thread becuase some maps take ALONG time to load.
                 // ToDo: Storing images in SVG DEF may be inefficient.
-                console.log(tokenProps.name, shapeProps);
+                //console.log(tokenProps.name, shapeProps);
             });
 
             // Sort background layer by Z-index
-            if (settings.displayMode == "svg") {
-                $(layers["background"]).children("").sort(function (a, b) {
-                    return $(a).attr('z') - $(b).attr('z');
-                })
-                .appendTo(layers["background"]);
+            //if (settings.displayMode == "svg") {
+            //    $(layers["background"]).children("").sort(function (a, b) {
+            //        return $(a).attr('z') - $(b).attr('z');
+            //    })
+            //    .appendTo(layers["background"]);
 
-                // Sort token layer by Z-index
-                $(layers["token"]).children("").sort(function (a, b) {
-                    return $(a).attr('z') - $(b).attr('z');
-                })
-                .appendTo(layers["token"]);
-            }
+            //    // Sort token layer by Z-index
+            //    $(layers["token"]).children("").sort(function (a, b) {
+            //        return $(a).attr('z') - $(b).attr('z');
+            //    })
+            //    .appendTo(layers["token"]);
+            //}
 
             // ToDo: Am I suppose to close a zip/reader?
 
-            // Clear InputFile value so if we pick the same file to import again the .onchange event fires
-            document.getElementById('InputFile').value = "";
+            // Send all tokens to worker thread to load images from zip file.
+            myWorker.postMessage([_importZipContent, _tokensToLoad]);
+
         };
         reader.readAsArrayBuffer(fileToLoad);
 

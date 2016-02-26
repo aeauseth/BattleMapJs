@@ -43,7 +43,7 @@ var rectangle = function (props) {
         }
         if (typeof (this.fillStyle) == "object") {
             if (this.tiledTexture) {
-                this.sprite = new PIXI.extras.TilingSprite(this.fillStyle, this.fillStyle.width, this.fillStyle.height);
+                this.sprite = new PIXI.extras.TilingSprite(this.fillStyle.image, this.fillStyle.image.width, this.fillStyle.image.height);
                 this.sprite.tilePosition.x = this.point[0];
                 this.sprite.tilePosition.y = this.point[1];
             } else {

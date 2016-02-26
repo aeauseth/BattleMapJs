@@ -33,7 +33,7 @@ var lastMouse = undefined;
 
 $(document).ready(function () {
     console.log("ready!");
-    
+
     // Read settings
     if (localStorage.settings) {
         settings = JSON.parse(localStorage.settings);
@@ -63,9 +63,7 @@ $(document).ready(function () {
     // Finilize & Start animation
 
 
-    //resize();
     loadSampleMap();
-    //setTimeout(loadSampleMap, 1000);
     animate();
 });
 
@@ -321,84 +319,84 @@ function updateLocalMouse() {
 }
 
 
-//function setupWegGlEvents() {
-//    //MouseMove
-//    window.stage.interactive = true;
-//    window.stage.on('mousemove', function (e) {
+function setupWegGlEvents() {
+    //MouseMove
+    window.stage.interactive = true;
+    window.stage.on('mousemove', function (e) {
 
-//        var mouseX = e.data.originalEvent.pageX;
-//        var mouseY = e.data.originalEvent.pageY;
+        var mouseX = e.data.originalEvent.pageX;
+        var mouseY = e.data.originalEvent.pageY;
 
-//        if (e.data.originalEvent.which == 3) {
+        if (e.data.originalEvent.which == 3) {
 
-//            //var localPos = e.data.getLocalPosition(palla)
+            //var localPos = e.data.getLocalPosition(palla)
 
-//            if (window.lastMouse != undefined) {
-//                lastX
-//                var lastX = window.lastMouse.x;
-//                var lastY = window.lastMouse.y;
-//                var dx = mouseX - lastX;
-//                var dy = mouseY - lastY;
-//                world.position.x = world.position.x + dx;
-//                world.position.y = world.position.y + dy;
-//                //console.log(mouseX, lastX, dx);
+            if (window.lastMouse != undefined) {
+                lastX
+                var lastX = window.lastMouse.x;
+                var lastY = window.lastMouse.y;
+                var dx = mouseX - lastX;
+                var dy = mouseY - lastY;
+                world.position.x = world.position.x + dx;
+                world.position.y = world.position.y + dy;
+                //console.log(mouseX, lastX, dx);
 
-//                ///updateGrid();
+                ///updateGrid();
 
-//                updateSvgTransform();
+                updateSvgTransform();
 
-//            }
-
-
-//        }
-//        window.lastMouse = { x: mouseX, y: mouseY, ctrlKey: e.data.originalEvent.ctrlKey };
-//        //console.log("stage mousemove");
-//        //window.lastMouse = {pageX: mouseX, pageY: e.data.originalEvent.pageY};
-//    });
-
-//    //Mouse Down
-//    window.stage.on('mousedown', function (e) {
-//        var mouseX = e.data.originalEvent.pageX;
-//        var mouseY = e.data.originalEvent.pageY;
-//        window.lastMouse = { x: mouseX, y: mouseY };
-//        if (!e._stopPropegation) {
-//            //console.log("window.stage.onmousedown", e.target);
-//            if (selectedShape) {
-//                selectedShape.unselect();
-//            }
-//        }
-//        e._stopPropegation = undefined;
+            }
 
 
-//    });
+        }
+        window.lastMouse = { x: mouseX, y: mouseY, ctrlKey: e.data.originalEvent.ctrlKey };
+        //console.log("stage mousemove");
+        //window.lastMouse = {pageX: mouseX, pageY: e.data.originalEvent.pageY};
+    });
 
-//    //Mouse Wheel
-//    window.onmousewheel = function (e) {
-//        //console.log(e);
-
-//        if (e.wheelDelta > 0) {
-//            world.scale.x *= 1.1;
-//            world.scale.y *= 1.1;
-//        }
-//        else {
-//            world.scale.x /= 1.1;
-//            world.scale.y /= 1.1;
-//        }
-//        updateSvgTransform();
-
-//    };
+    //Mouse Down
+    window.stage.on('mousedown', function (e) {
+        var mouseX = e.data.originalEvent.pageX;
+        var mouseY = e.data.originalEvent.pageY;
+        window.lastMouse = { x: mouseX, y: mouseY };
+        if (!e._stopPropegation) {
+            //console.log("window.stage.onmousedown", e.target);
+            if (selectedShape) {
+                selectedShape.unselect();
+            }
+        }
+        e._stopPropegation = undefined;
 
 
+    });
+
+    //Mouse Wheel
+    window.onmousewheel = function (e) {
+        //console.log(e);
+
+        if (e.wheelDelta > 0) {
+            world.scale.x *= 1.1;
+            world.scale.y *= 1.1;
+        }
+        else {
+            world.scale.x /= 1.1;
+            world.scale.y /= 1.1;
+        }
+        updateSvgTransform();
+
+    };
 
 
 
-//    //Context Menu Event
-//    document.addEventListener("contextmenu", function (e) {
-//        event.preventDefault();
 
-//        e.preventDefault();
-//    }, false);
-//}
+
+    //Context Menu Event
+    document.addEventListener("contextmenu", function (e) {
+        event.preventDefault();
+
+        e.preventDefault();
+    }, false);
+}
 
 function setMode(_mode) {
     mode = _mode;
@@ -632,14 +630,16 @@ function resize() {
             break;
     }
 
-    //if (settings.displayMode == "WebGL") {
-    //    //this part resizes the canvas but keeps ratio the same
-    //    renderer.view.style.width = w + "px";
-    //    renderer.view.style.height = h + "px";
+    if (settings.displayMode == "WebGL") {
+        //this part resizes the canvas but keeps ratio the same
+        var w = window.innerWidth;
+        var h = window.innerHeight;
+        renderer.view.style.width = w + "px";
+        renderer.view.style.height = h + "px";
 
-    //    // this part adjusts the ratio
-    //    renderer.resize(w, h);
-    //}
+        // this part adjusts the ratio
+        renderer.resize(w, h);
+    }
 
     //if (settings.displayMode == "Canvas") {
     //    // Size canvas' to match current window size
@@ -861,7 +861,7 @@ function resizeGrid(newGridSize) {
     }
 
 
-    
+
 }
 
 
@@ -1006,6 +1006,7 @@ function reset(displayMode) {
         case "WebGL":
             window.renderer = new PIXI.WebGLRenderer(window.innerWidth, window.innerHeight);
             renderer.view.id = "pixiCanvas";
+            //renderer.autoResize = true;
             canvasDiv.appendChild(renderer.view);
             window.renderer.backgroundColor = 0xb0c4de;
             window.stage = new PIXI.Container();
@@ -1014,6 +1015,7 @@ function reset(displayMode) {
 
             setupLayers();
             setupGrid();
+            setupWegGlEvents();
             break;
         case "svg":
             setupLayers();
@@ -1150,26 +1152,36 @@ function textureHandler(textureName, options) {
         textures[textureName].pattern = "url(#" + textureName + ")";
         textures[textureName].image = "";
         if (options.texture && !options.binary64) {
-            getDataUri(textureName, function (e) {
-                var defs = document.getElementsByTagName("defs")[0];
-                var pattern = document.createElementNS("http://www.w3.org/2000/svg", "pattern");
-                pattern.setAttribute("id", textureName);
-                pattern.setAttribute("x", 0);
-                pattern.setAttribute("y", 0);
-                pattern.setAttribute("width", e.width);
-                pattern.setAttribute("height", e.height);
-                pattern.setAttribute("patternUnits", "userSpaceOnUse");
-                var image = document.createElementNS("http://www.w3.org/2000/svg", "image");
-                image.setAttributeNS("http://www.w3.org/1999/xlink", "href", e.dataUri);
-                image.setAttribute("x", 0);
-                image.setAttribute("y", 0);
-                image.setAttribute("width", e.width);
-                image.setAttribute("height", e.height);
-                pattern.appendChild(image)
-                defs.appendChild(pattern);
-                textures[textureName].image = e.dataUri;
+            switch (settings.displayMode) {
+                case "svg":
 
-            });
+                    getDataUri(textureName, function (e) {
+
+                        var defs = document.getElementsByTagName("defs")[0];
+                        var pattern = document.createElementNS("http://www.w3.org/2000/svg", "pattern");
+                        pattern.setAttribute("id", textureName);
+                        pattern.setAttribute("x", 0);
+                        pattern.setAttribute("y", 0);
+                        pattern.setAttribute("width", e.width);
+                        pattern.setAttribute("height", e.height);
+                        pattern.setAttribute("patternUnits", "userSpaceOnUse");
+                        var image = document.createElementNS("http://www.w3.org/2000/svg", "image");
+                        image.setAttributeNS("http://www.w3.org/1999/xlink", "href", e.dataUri);
+                        image.setAttribute("x", 0);
+                        image.setAttribute("y", 0);
+                        image.setAttribute("width", e.width);
+                        image.setAttribute("height", e.height);
+                        pattern.appendChild(image)
+                        defs.appendChild(pattern);
+                        textures[textureName].image = e.dataUri;
+
+                    });
+                    break;
+
+                case "WebGL":
+                    textures[textureName].image = PIXI.Texture.fromImage(textureName);
+                    break;
+            }
         }
 
         //if (options.texture && options.binaryData) {
@@ -1221,7 +1233,7 @@ function textureHandler(textureName, options) {
                 defs.appendChild(pattern);
                 textures[textureName].image = options.binary64;
             }
-            
+
             if (settings.displayMode == "WebGL") {
                 var base = new PIXI.BaseTexture(e);
                 var texture = new PIXI.Texture(base);
@@ -1464,7 +1476,7 @@ function animate(e) {
 
     text = "Render: " + t_Renderer + ", Shapes: " + t_Shapes + ", FPS: " + _fps + ", DrawTime: " + ("0" + drawTime).slice(-2) + "ms";
     text += ", Cursor: " + t_x + " " + t_y;
-    text += ", Heap: " + Math.round(console.memory.totalJSHeapSize / 1024);
+    //text += ", Heap: " + Math.round(console.memory.totalJSHeapSize / 1024);
 
 
     statusSpan.textContent = text;
